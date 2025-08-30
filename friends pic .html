@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beautiful Image Gallery</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #ffecd2, #fcb69f);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    /* Heading */
+    h1 {
+      text-align: center;
+      font-size: 2.5rem;
+      margin-bottom: 30px;
+      color: #fff;
+      text-shadow: 0 0 5px #fff, 0 0 10px #ff6b81, 0 0 20px #ff3c3c;
+      animation: glow 2s infinite alternate;
+    }
+
+    @keyframes glow {
+      from { text-shadow: 0 0 5px #fff, 0 0 10px #ff8c42, 0 0 20px #ff3c3c; }
+      to   { text-shadow: 0 0 10px #fff, 0 0 20px #ff6b81, 0 0 40px #ff0000; }
+    }
+
+    /* Gallery grid */
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      max-width: 1400px;
+      margin: auto;
+    }
+
+    .gallery img {
+      width: 100%;
+      height: 260px;
+      object-fit: cover;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      transition: transform 0.4s ease, box-shadow 0.4s ease;
+      cursor: pointer;
+    }
+
+    .gallery img:hover {
+      transform: scale(1.07);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+    }
+
+    /* Lightbox */
+    .lightbox {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.9);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+    }
+
+    .lightbox img {
+      max-width: 90%;
+      max-height: 85%;
+      border-radius: 15px;
+      box-shadow: 0 0 25px rgba(255,255,255,0.4);
+    }
+
+    .lightbox.active {
+      display: flex;
+    }
+
+    /* Close button */
+    .close-btn {
+      position: absolute;
+      top: 20px;
+      right: 40px;
+      color: white;
+      font-size: 40px;
+      text-decoration: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .close-btn:hover {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>✨ My Beautiful Gallery ✨</h1>
+
+  <div class="gallery">
+    <img src="ab1.jpg">
+    <img src="ab2.jpg">
+    <img src="ab3.jpg">
+    <img src="ab4.jpg">
+    <img src="ab5.jpg">
+    <img src="ab6.jpg">
+    <img src="ab7.jpg">
+    <img src="ab8.jpg">
+    <img src="ab9.jpg">
+    <img src="ab10.jpg">
+    <img src="ab68.jpg">
+    <img src="ab11.jpg">
+    <img src="ab12.jpg">
+    <img src="ab13.jpg">
+    <img src="ab14.jpg">
+    <img src="ab15.jpg">
+    <img src="ab16.jpg">
+    <img src="ab17.jpg">
+    <img src="ab18.jpg">
+    <img src="ab19.jpg">
+    <img src="ab20.jpg">
+    <img src="ab21.jpg">
+    <img src="ab22.jpg">
+    <img src="ab23.jpg">
+    <img src="ab24.jpg">
+    <img src="ab25.jpg">
+    <img src="ab26.jpg">
+    <img src="ab27.jpg">
+    <img src="ab28.jpg">
+    <img src="ab29.jpg">
+    <img src="ab30.jpg">
+    <img src="ab31.jpg">
+    <img src="ab32.jpg">
+    <img src="ab33.jpg">
+    <img src="ab34.jpg">
+    <img src="ab35.jpg">
+    <img src="ab36.jpg">
+    <img src="ab37.jpg">
+    <img src="ab38.jpg">
+    <img src="ab39.jpg">
+    <img src="ab40.jpg">
+    <img src="ab41.jpg">
+    <img src="ab42.jpg">
+    <img src="ab43.jpg">
+    <img src="ab44.jpg">
+    <img src="ab45.jpg">
+    <img src="ab46.jpg">
+    <img src="ab47.jpg">
+    <img src="ab48.jpg">
+    <img src="ab49.jpg">
+    <img src="ab50.jpg">
+    <img src="ab51.jpg">
+    <img src="ab52.jpg">
+    <img src="ab53.jpg">
+    <img src="ab54.jpg">
+    <img src="ab55.jpg">
+    <img src="ab56.jpg">
+    <img src="ab57.jpg">
+    <img src="ab58.jpg">
+    <img src="ab59.jpg">
+    <img src="ab60.jpg">
+    <img src="ab61.jpg">
+    <img src="ab62.jpg">
+    <img src="ab63.jpg">
+    <img src="ab64.jpg">
+    <img src="ab65.jpg">
+    <img src="ab66.jpg">
+    <img src="ab67.jpg">
+  </div>
+
+  <!-- Lightbox -->
+  <div class="lightbox" id="lightbox">
+    <span class="close-btn" onclick="closeLightbox()">×</span>
+    <img id="lightbox-img" src="">
+  </div>
+
+  <script>
+    const galleryImages = document.querySelectorAll('.gallery img');
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightbox-img');
+
+    galleryImages.forEach(img => {
+      img.addEventListener('click', () => {
+        lightbox.classList.add('active');
+        lightboxImg.src = img.src;
+      });
+    });
+
+    function closeLightbox() {
+      lightbox.classList.remove('active');
+    }
+
+    // Escape key press to close
+    document.addEventListener('keydown', (e) => {
+      if (e.key === "Escape") closeLightbox();
+    });
+  </script>
+
+</body>
+</html>

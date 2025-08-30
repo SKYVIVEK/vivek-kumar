@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>My Contacts — Multi-Snake Background</title>
+  <style>
+    :root{
+      --card-bg: rgba(255,255,255,0.08);
+      --glass-blur: 10px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%}
+    canvas#bgCanvas{
+      position:fixed;inset:0;width:100%;height:100%;z-index:-1;display:block;
+    }
+    body{
+      font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial;
+      background: linear-gradient(180deg, #eef7f4 0%, #eaf3f1 100%);
+      color:#023632;
+      min-height:100vh;
+      display:flex;align-items:center;justify-content:center;padding:24px;
+    }
+    .container{
+      width:100%;max-width:420px;border-radius:14px;padding:24px;
+      background:var(--card-bg);backdrop-filter: blur(var(--glass-blur)) saturate(120%);
+      box-shadow: 0 10px 30px rgba(20,30,40,0.12);border:1px solid rgba(255,255,255,0.06);
+    }
+    h1{text-align:center;margin-bottom:18px;color:#023632;font-size:1.4rem}
+    ul{list-style:none;display:flex;flex-direction:column;gap:14px}
+    a.contact{display:flex;align-items:center;gap:12px;text-decoration:none;padding:12px 14px;border-radius:10px;
+      color:#062f2b;font-weight:700;box-shadow: 0 6px 18px rgba(12,20,16,0.06);transition: transform .18s ease;}
+    a.contact:hover{ transform: translateY(-4px); box-shadow: 0 14px 30px rgba(12,20,16,0.09); }
+    .instagram{ background: linear-gradient(90deg,#fb9a3f,#dd2a7b,#833ab4); color:white;}
+    .facebook{ background: #1877f2; color:white;}
+    .snapchat{ background: #fff176; color:#111; font-weight:800;}
+    .gmail{ background: linear-gradient(90deg,#e57373,#d93025); color:white;}
+    .icon{font-size:20px;width:28px;text-align:center}
+  </style>
+</head>
+<body>
+  <canvas id="bgCanvas" aria-hidden="true"></canvas>
+
+  <div class="container" role="region" aria-label="Contact links">
+    <h1>My Contact Links</h1>
+    <ul>
+      <li><a class="contact instagram" href="https://www.instagram.com/_vivek.singh18?igsh=OWYzMHhqbjloZTIy" target="_blank" rel="noopener"><span class="icon">📸</span> Instagram</a></li>
+      <li><a class="contact facebook" href="https://www.facebook.com/share/174hP1PqA6/" target="_blank" rel="noopener"><span class="icon">📘</span> Facebook</a></li>
+      <li><a class="contact snapchat" href="https://www.snapchat.com/add/vivekkumarv0987?share_id=lko-e9N8wdw&locale=en-GB" target="_blank" rel="noopener"><span class="icon">👻</span> Snapchat</a></li>
+      <li><a class="contact gmail" href="mailto:vivkumarv0987@gmail.com"><span class="icon">📧</span> Gmail</a></li>
+    </ul>
+  </div>
+
+  <script>
+    // ====== Multi-snake canvas background ======
+    const canvas = document.getElementById('bgCanvas');
+    const ctx = canvas.getContext('2d', { alpha: true });
+
+    let W = canvas.width = innerWidth;
+    let H = canvas.height = innerHeight;
+
+    function fixHiDPI(){
+      const dpr = Math.max(1, window.devicePixelRatio || 1);
+      canvas.width = Math.floor(W * dpr);
+      canvas.height = Math.floor(H * dpr);
+      canvas.style.width = W + 'px';
+      canvas.style.height = H + 'px';
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+    }
+
+    window.addEventListener('resize', () => {
+      W = canvas.width = innerWidth;
+      H = canvas.height = innerHeight;
+      fixHiDPI();
+    });
+
+    // Configuration
+    const NUM_SNAKES = 8; // <-- number of snakes (you asked: at least 8)
+    const snakes = [];
+
+    // helper: random between
+    const rand = (a,b)=> a + Math.random()*(b-a);
+
+    // create snakes with varied params
+    for(let i=0;i<NUM_SNAKES;i++){
+      const hue = rand(140, 220) + (i*12); // varied hues
+      snakes.push({
+        segments: [],
+        segCount: Math.floor(rand(12, 26)),   // different lengths
+        segLength: rand(10, 26),
+        speed: rand(0.6, 2.0),
+        angle: rand(0, Math.PI*2),
+        hueBase: hue,
+        startX: rand(W*0.05, W*0.95),
+        startY: rand(H*0.1, H*0.9),
+        wiggleFactor: rand(0.9, 1.6),
+      });
+    }
+
+    // init segments for each snake
+    function initSnakes(){
+      for(const s of snakes){
+        s.segments = [];
+        for(let j=0;j<s.segCount;j++){
+          s.segments.push({ x: s.startX - j*s.segLength, y: s.startY });
+        }
+      }
+    }
+    initSnakes();
+
+    // Update one snake
+    function updateSnake(s, dt, t){
+      // subtle per-snake noise
+      const wig = Math.sin(t * 0.9 * s.wiggleFactor) * 0.6 + Math.cos(t * 0.5 * s.wiggleFactor)*0.4;
+      s.angle += wig * 0.015;
+      const head = s.segments[0];
+      const vx = Math.cos(s.angle) * s.speed;
+      const vy = Math.sin(s.angle) * s.speed;
+
+      let nx = head.x + vx * (dt*0.06);
+      let ny = head.y + vy * (dt*0.06);
+
+      // soft wrap
+      if (nx < -60) nx = W + 60;
+      if (nx > W + 60) nx = -60;
+      if (ny < -60) ny = H + 60;
+      if (ny > H + 60) ny = -60;
+
+      s.segments.unshift({ x: nx, y: ny });
+      while (s.segments.length > s.segCount) s.segments.pop();
+
+      // relax spacing
+      for(let i=1;i<s.segments.length;i++){
+        const prev = s.segments[i-1], cur = s.segments[i];
+        let dx = cur.x - prev.x, dy = cur.y - prev.y;
+        const dist = Math.hypot(dx,dy) || 0.0001;
+        const target = s.segLength;
+        const diff = (dist - target) / dist;
+        cur.x -= dx * diff * 0.28;
+        cur.y -= dy * diff * 0.28;
+      }
+    }
+
+    // Draw one snake
+    function drawSnake(s){
+      // trail (faded circles)
+      for(let i = s.segments.length-1; i>=0; i--){
+        const p = s.segments[i];
+        const life = 1 - (i / s.segments.length);
+        const radius = 6 + life * (Math.min(18, s.segLength));
+        const alpha = 0.09 + life * 0.45;
+        const hue = s.hueBase + life * 20;
+        ctx.beginPath();
+        ctx.fillStyle = `hsla(${hue}, 70%, ${45 - life*6}%, ${alpha})`;
+        ctx.arc(p.x, p.y, radius, 0, Math.PI*2);
+        ctx.fill();
+      }
+      // head
+      const head = s.segments[0];
+      ctx.beginPath();
+      ctx.fillStyle = `hsla(${s.hueBase+28}, 78%, 44%, 1)`;
+      ctx.arc(head.x, head.y, Math.min(12, s.segLength*0.7), 0, Math.PI*2);
+      ctx.fill();
+
+      // subtle stroke
+      ctx.beginPath();
+      for(let i=0;i<s.segments.length;i++){
+        const p = s.segments[i];
+        if (i===0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+      }
+      ctx.lineWidth = 1.2;
+      ctx.strokeStyle = 'rgba(6,30,24,0.06)';
+      ctx.stroke();
+    }
+
+    // main loop
+    let last = performance.now();
+    let paused = false;
+    function loop(now){
+      if (paused){ last = now; requestAnimationFrame(loop); return; }
+      const dt = now - last;
+      last = now;
+      const t = now * 0.001;
+
+      // soft background wash
+      ctx.clearRect(0,0,W,H);
+      const g = ctx.createLinearGradient(0,0,0,H);
+      g.addColorStop(0, 'rgba(234,243,241,0.56)');
+      g.addColorStop(1, 'rgba(240,250,249,0.56)');
+      ctx.fillStyle = g;
+      ctx.fillRect(0,0,W,H);
+
+      // update & draw each snake (in layered order: small to large)
+      for(const s of snakes){
+        updateSnake(s, dt, t);
+        drawSnake(s);
+      }
+
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+
+    // visibility handling for perf
+    document.addEventListener('visibilitychange', ()=>{
+      if(document.hidden){
+        paused = true;
+      } else {
+        paused = false;
+      }
+    });
+
+    // subtle speed change with mouse (optional)
+    window.addEventListener('mousemove', (e)=>{
+      const mx = e.clientX / W;
+      snakes.forEach((s, i)=>{
+        // slight per-snake sensitivity
+        const base = 0.6 + (i/NUM_SNAKES) * 1.6;
+        s.speed = 0.6 + mx * base;
+      });
+    });
+
+    // initialize hi-dpi and snakes on start
+    fixHiDPI();
+    window.addEventListener('load', ()=>{
+      W = innerWidth; H = innerHeight;
+      initSnakes();
+      fixHiDPI();
+    });
+  </script>
+</body>
+</html>

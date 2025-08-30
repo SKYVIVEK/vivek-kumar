@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diary Video Gallery</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+    }
+
+    /* Background canvas */
+    #bgCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: -1;
+    }
+
+    .diary {
+      position: relative;
+      width: 420px;
+      height: 380px;
+      border: 2px solid #444;
+      border-radius: 12px;
+      box-shadow: 0px 6px 18px rgba(0,0,0,0.3);
+      background: white;
+      perspective: 1200px;
+      overflow: hidden;
+    }
+
+    .page {
+      width: 100%;
+      height: 300px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      transform-style: preserve-3d;
+      transition: transform 0.8s ease-in-out;
+    }
+
+    video {
+      width: 100%;
+      height: 300px;
+      object-fit: cover;
+      display: block;
+      backface-visibility: hidden;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 8px;
+      background: #f0f0f0;
+      border-top: 1px solid #ccc;
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+    }
+
+    button, a.download {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 6px;
+      background: linear-gradient(90deg, #ff9966, #ff5e62);
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: 0.3s;
+    }
+
+    button:hover, a.download:hover {
+      background: linear-gradient(90deg, #36d1dc, #5b86e5);
+    }
+  </style>
+</head>
+<body>
+  <!-- Painting style animated background -->
+  <canvas id="bgCanvas"></canvas>
+
+  <div class="diary">
+    <!-- Two page layers for flip effect -->
+    <div class="page" id="page1">
+      <video id="video1" controls autoplay muted>
+        <source src="school1.mp4" type="video/mp4">
+      </video>
+    </div>
+
+    <div class="page" id="page2" style="transform: rotateY(180deg);">
+      <video id="video2" controls autoplay muted>
+        <source src="school2.mp4" type="video/mp4">
+      </video>
+    </div>
+
+    <div class="controls">
+      <button id="prevBtn">⏮ Previous</button>
+      <a id="downloadBtn" href="school1.mp4" download class="download">⬇ Download</a>
+      <button id="nextBtn">Next ⏭</button>
+      <button id="fullscreenBtn">⛶ Full Screen</button>
+    </div>
+  </div>
+
+  <script>
+    const videos = [
+      "school1.mp4","school2.mp4","school3.mp4","school4.mp4",
+      "school5.mp4","school6.mp4","school7.mp4","school8.mp4",
+      "school9.mp4","school10.mp4","school11.mp4","school12.mp4","school13.mp4"
+    ];
+
+    let current = 0;
+    let showingPage1 = true;
+
+    const page1 = document.getElementById("page1");
+    const page2 = document.getElementById("page2");
+    const video1 = document.getElementById("video1");
+    const video2 = document.getElementById("video2");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const downloadBtn = document.getElementById("downloadBtn");
+    const fullscreenBtn = document.getElementById("fullscreenBtn");
+
+    function stopAllVideos() {
+      [video1, video2].forEach(v => {
+        v.pause();
+        v.currentTime = 0;
+      });
+    }
+
+    function loadVideo(index, direction="next") {
+      stopAllVideos(); // ✅ Pichle video ko band karo
+
+      if (showingPage1) {
+        video2.src = videos[index];
+        downloadBtn.href = videos[index];
+        page1.style.transform = direction === "next" ? "rotateY(-180deg)" : "rotateY(180deg)";
+        page2.style.transform = "rotateY(0deg)";
+        video2.play(); // ✅ Naya video start karo
+      } else {
+        video1.src = videos[index];
+        downloadBtn.href = videos[index];
+        page2.style.transform = direction === "next" ? "rotateY(-180deg)" : "rotateY(180deg)";
+        page1.style.transform = "rotateY(0deg)";
+        video1.play();
+      }
+      showingPage1 = !showingPage1;
+    }
+
+    // Next
+    nextBtn.addEventListener("click", () => {
+      if (current < videos.length - 1) {
+        current++;
+        loadVideo(current, "next");
+      }
+    });
+
+    // Previous
+    prevBtn.addEventListener("click", () => {
+      if (current > 0) {
+        current--;
+        loadVideo(current, "prev");
+      }
+    });
+
+    // Fullscreen
+    fullscreenBtn.addEventListener("click", () => {
+      const currentVideo = showingPage1 ? video1 : video2;
+      if (currentVideo.requestFullscreen) {
+        currentVideo.requestFullscreen();
+      }
+    });
+
+    /* =======================
+       Painting Style BG Logic
+       ======================= */
+    const canvas = document.getElementById("bgCanvas");
+    const ctx = canvas.getContext("2d");
+    let w, h;
+    function resizeCanvas() {
+      w = canvas.width = window.innerWidth;
+      h = canvas.height = window.innerHeight;
+    }
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+    const blobs = [];
+    for (let i = 0; i < 20; i++) {
+      blobs.push({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        r: 80 + Math.random() * 120,
+        dx: (Math.random() - 0.5) * 1.5,
+        dy: (Math.random() - 0.5) * 1.5,
+        color: `hsla(${Math.random() * 360}, 70%, 60%, 0.4)`
+      });
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, w, h);
+      for (let b of blobs) {
+        ctx.beginPath();
+        ctx.fillStyle = b.color;
+        ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+        ctx.fill();
+
+        b.x += b.dx;
+        b.y += b.dy;
+
+        if (b.x - b.r < 0 || b.x + b.r > w) b.dx *= -1;
+        if (b.y - b.r < 0 || b.y + b.r > h) b.dy *= -1;
+      }
+      requestAnimationFrame(animate);
+    }
+    animate();
+  </script>
+</body>
+</html>

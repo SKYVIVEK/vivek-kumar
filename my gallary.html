@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Photo Diary</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background: linear-gradient(135deg, #ffecd2, #fcb69f);
+      font-family: Arial, sans-serif;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      font-size: 2rem;
+      color: #333;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+    }
+
+    .diary {
+      position: relative;
+      width: 300px;
+      height: 400px;
+      perspective: 1200px;
+    }
+
+    .diary img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 300px;
+      height: 400px;
+      object-fit: cover;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+      transform-origin: left center;
+      transform: rotateY(90deg);
+      opacity: 0;
+      transition: transform 1s ease, opacity 1s ease;
+      cursor: pointer;
+    }
+
+    .diary img.active {
+      transform: rotateY(0deg);
+      opacity: 1;
+      z-index: 1;
+    }
+
+    .controls {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      font-size: 1rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 10px;
+      background: #ff6a00;
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      transition: 0.3s;
+      text-decoration: none;
+      text-align: center;
+    }
+
+    .btn:hover {
+      background: #ff8800;
+      transform: scale(1.05);
+    }
+
+    /* Fullscreen overlay */
+    .fullscreen {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.9);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .fullscreen img {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(255,255,255,0.7);
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      font-size: 2rem;
+      color: white;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>📖 Photo Collection</h1>
+  <div class="diary">
+    <img src="vivek10.jpg" class="active">
+    <img src="vivek2.jpg">
+    <img src="vivek3.jpg">
+    <img src="vivek4.jpg">
+    <img src="vivek5.jpg">
+    <img src="vivek6.jpg">
+    <img src="vivek8.jpg">
+    <img src="vivek9.jpg">
+    <img src="vivek1.jpg">
+  </div>
+
+  <div class="controls">
+    <button class="btn" onclick="prevPhoto()">⬅️ Previous</button>
+    <button class="btn" onclick="nextPhoto()">Next ➡️</button>
+    <a id="downloadBtn" class="btn" download>⬇️ Download</a>
+  </div>
+
+  <!-- Fullscreen view -->
+  <div class="fullscreen" id="fullscreenView">
+    <span class="close-btn" onclick="closeFullscreen()">✖</span>
+    <img id="fullscreenImg">
+  </div>
+
+  <script>
+    let current = 0;
+    const photos = document.querySelectorAll(".diary img");
+    const downloadBtn = document.getElementById("downloadBtn");
+    const fullscreenView = document.getElementById("fullscreenView");
+    const fullscreenImg = document.getElementById("fullscreenImg");
+
+    function showPhoto(index) {
+      photos.forEach((p, i) => p.classList.remove("active"));
+      photos[index].classList.add("active");
+      downloadBtn.href = photos[index].src;
+      downloadBtn.download = "photo" + (index + 1) + ".jpg";
+    }
+
+    function nextPhoto() {
+      current = (current + 1) % photos.length;
+      showPhoto(current);
+    }
+
+    function prevPhoto() {
+      current = (current - 1 + photos.length) % photos.length;
+      showPhoto(current);
+    }
+
+    // Fullscreen open
+    photos.forEach(photo => {
+      photo.addEventListener("click", () => {
+        fullscreenImg.src = photo.src;
+        fullscreenView.style.display = "flex";
+      });
+    });
+
+    // Close fullscreen
+    function closeFullscreen() {
+      fullscreenView.style.display = "none";
+    }
+
+    // Close with ESC key
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        closeFullscreen();
+      }
+    });
+
+    showPhoto(current);
+  </script>
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About Me - Vivek Kumar</title>
+  <style>
+    /* Reset styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    /* Stylish Animated Gradient Background */
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+
+      background: linear-gradient(270deg, #ff6b6b, #feca57, #48dbfb, #1dd1a1, #5f27cd);
+      background-size: 1000% 1000%;
+      animation: gradientBG 15s ease infinite;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    main {
+      background: #fff;
+      padding: 30px;
+      border-radius: 20px;
+      max-width: 650px;
+      width: 100%;
+      box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.3);
+      text-align: center;
+      animation: fadeIn 1s ease-in-out;
+      overflow: hidden;
+    }
+
+    /* Wrapper for running text */
+    .heading-wrapper {
+      width: 100%;
+      overflow: hidden;
+      white-space: nowrap;
+      margin-bottom: 20px;
+    }
+    .heading-wrapper h2 {
+      font-size: 2rem;
+      color: #2c3e50;
+      display: inline-block;
+      padding: 5px 20px;
+      animation: runText 8s linear infinite;
+    }
+
+    img {
+      border-radius: 50%;
+      border: 4px solid #3498db;
+      margin: 15px 0;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    img:hover {
+      transform: scale(1.05);
+      box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    ul {
+      list-style: none;
+      text-align: left;
+      margin-top: 20px;
+    }
+    ul li {
+      font-size: 1rem;
+      margin-bottom: 12px;
+      line-height: 1.6;
+      padding-left: 28px;
+      position: relative;
+      font-weight: 500;
+    }
+    ul li::before {
+      content: "✔";
+      position: absolute;
+      left: 0;
+      color: #3498db;
+      font-weight: bold;
+    }
+
+    /* Different colors for each line */
+    ul li:nth-child(1) { color: #e74c3c; } /* Red */
+    ul li:nth-child(2) { color: #27ae60; } /* Green */
+    ul li:nth-child(3) { color: #2980b9; } /* Blue */
+    ul li:nth-child(4) { color: #8e44ad; } /* Purple */
+    ul li:nth-child(5) { color: #d35400; } /* Orange */
+    ul li:nth-child(6) { color: #16a085; } /* Teal */
+    ul li:nth-child(7) { color: #3c2c50; } /* Dark Gray */
+    ul li:nth-child(8) { color: #c0392b; } /* Extra Red */
+    ul li:nth-child(9) { color: #2ecc71; } /* Extra Green */
+
+    /* Fade-in animation */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Horizontal running animation */
+    @keyframes runText {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="heading-wrapper">
+      <h2>About Me</h2>
+    </div>
+    <img src="whatsapp.jpg" alt="Vivek Kumar" height="200">
+
+    <ul>
+      <li>Hello, my name is <b>VIVEK KUMAR</b>. I am a student passionate about web development and technology.</li>
+      <li>I enjoy learning new programming languages and applying creative ideas to my projects.</li>
+      <li>With a strong interest in physics and machine learning, I like to explore new concepts and solve challenging problems.</li>
+      <li>I believe in continuous self-improvement and seek opportunities to expand my skills every day.</li>
+      <li>Apart from academics, I love watching cricket and movies related to fiction.</li>
+      <li>My hobbies include coding, creating websites, and playing cricket and kabaddi.</li>
+      <li>I am hardworking, reliable, and motivated to achieve my goals both in studies and personal growth.</li>
+      <li><b>Education:</b> I completed my schooling up to Class X at Kendriya Vidyalaya (Bailey Road, Patna), a renowned network of central government schools in India known for its high academic standards and diverse student body. Currently I am in class 11th and studying my further studies.</li>
+      <li><b>Caste/Community:</b> I am a Hindu and I belong to the Bhumihar community, a prominent group among the landowning Brahmins primarily found in Bihar, Uttar Pradesh, and nearby states. Bhumihars are traditionally recognized for their strong cultural heritage, educational achievements, and contribution to society as professionals, leaders, and landowners.</li>
+    </ul>
+  </main>
+</body>
+</html>

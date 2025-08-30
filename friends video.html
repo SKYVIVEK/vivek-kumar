@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Beautiful Video Gallery</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    html,body{height:100%;overflow:hidden;font-family: 'Segoe UI',sans-serif;}
+
+    body{
+      background:#0e0e15;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      position:relative;
+    }
+    body::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      padding:12px;
+      border-radius:20px;
+      background:linear-gradient(135deg,#ff6ec4,#7873f5,#42e695);
+      -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+      -webkit-mask-composite:xor;
+      mask-composite:exclude;
+      z-index:1;
+      animation: borderMove 12s linear infinite;
+      background-size:300% 300%;
+    }
+    @keyframes borderMove{
+      0%{background-position:0% 50%}
+      50%{background-position:100% 50%}
+      100%{background-position:0% 50%}
+    }
+
+    .shapes span{
+      position:absolute;
+      bottom:-80px;
+      background:rgba(255,255,255,0.15);
+      border-radius:50%;
+      animation: rise 25s linear infinite;
+    }
+    @keyframes rise{
+      0%{transform:translateY(0) scale(1);opacity:1}
+      100%{transform:translateY(-110vh) scale(0.5);opacity:0}
+    }
+    .shapes span:nth-child(1){left:10%;width:40px;height:40px;animation-duration:18s;}
+    .shapes span:nth-child(2){left:25%;width:25px;height:25px;animation-duration:22s;}
+    .shapes span:nth-child(3){left:40%;width:50px;height:50px;animation-duration:28s;}
+    .shapes span:nth-child(4){left:65%;width:30px;height:30px;animation-duration:20s;}
+    .shapes span:nth-child(5){left:80%;width:60px;height:60px;animation-duration:26s;}
+
+    .video-container{
+      width:500px;
+      height:320px;
+      border-radius:20px;
+      overflow:hidden;
+      background:rgba(255,255,255,0.05);
+      box-shadow:0 20px 50px rgba(0,0,0,0.6);
+      backdrop-filter:blur(12px) saturate(140%);
+      z-index:2;
+      position:relative;
+    }
+    video{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+    }
+
+    /* simple overlay buttons */
+    .controls{
+      position:absolute;
+      top:50%;
+      left:0;
+      width:100%;
+      display:flex;
+      justify-content:space-between;
+      transform:translateY(-50%);
+      padding:0 20px;
+      z-index:3;
+    }
+    .btn{
+      background:none;
+      border:none;
+      color:white;
+      font-size:22px;
+      font-weight:bold;
+      text-shadow:0 0 8px black;
+      cursor:pointer;
+      transition:0.3s;
+    }
+    .btn:hover{transform:scale(1.2);}
+
+    /* Password modal */
+    .pw-overlay{
+      position:fixed;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:rgba(0,0,0,0.6);
+      z-index:50;
+      visibility:hidden;
+      opacity:0;
+      transition:opacity .18s ease, visibility .18s;
+    }
+    .pw-overlay.show{visibility:visible;opacity:1}
+    .pw-card{
+      width:360px;
+      max-width:90%;
+      background:linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.03));
+      padding:18px;
+      border-radius:12px;
+      box-shadow:0 10px 30px rgba(0,0,0,0.6);
+      backdrop-filter: blur(6px);
+      color:#fff;
+      text-align:center;
+    }
+    .pw-card h3{margin-bottom:10px;font-size:18px}
+    .pw-card p{margin-bottom:14px;font-size:13px;color:rgba(255,255,255,0.85)}
+    .pw-input{
+      width:100%;
+      padding:10px 12px;
+      border-radius:8px;
+      border:1px solid rgba(255,255,255,0.12);
+      background:rgba(255,255,255,0.02);
+      color:white;
+      outline:none;
+      margin-bottom:12px;
+      font-size:14px;
+    }
+    .pw-actions{display:flex;gap:8px;justify-content:center}
+    .pw-actions button{
+      padding:8px 12px;border-radius:8px;border:none;cursor:pointer;font-weight:600;
+      background:transparent;color:white;border:1px solid rgba(255,255,255,0.14);
+    }
+    .pw-error{color:#ff8b8b;font-size:13px;margin-top:8px;min-height:18px}
+
+    /* small hint for protected videos (optional) */
+    .hint{
+      position:absolute;left:12px;top:12px;color:rgba(255,255,255,0.8);font-size:12px;z-index:3;
+      text-shadow:0 0 6px rgba(0,0,0,0.6);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="shapes">
+    <span></span><span></span><span></span><span></span><span></span>
+  </div>
+
+  <div class="video-container" id="vc">
+    <div class="hint" id="hintText">Video 1 of 9</div>
+    <video id="videoPlayer" controls>
+      <source src="friendvideo10.mp4" type="video/mp4">
+      आपका ब्राउज़र वीडियो टैग सपोर्ट नहीं करता।
+    </video>
+
+    <div class="controls">
+      <button class="btn" onclick="prevVideo()">⏮ Prev</button>
+      <button class="btn" onclick="nextVideo()">Next ⏭</button>
+    </div>
+  </div>
+
+  <!-- Password overlay -->
+  <div class="pw-overlay" id="pwOverlay" aria-hidden="true">
+    <div class="pw-card" role="dialog" aria-modal="true" aria-labelledby="pwTitle">
+      <h3 id="pwTitle">Password required</h3>
+      <p>Is video protected hai — password dalne par hi dikhaya jayega.</p>
+      <input type="text" id="pwField" class="pw-input" placeholder="Type password here" autocomplete="off" />
+      <div class="pw-actions">
+        <button onclick="checkPassword()">Unlock</button>
+        <button onclick="closePw()">Cancel</button>
+      </div>
+      <div class="pw-error" id="pwError"></div>
+    </div>
+  </div>
+
+  <script>
+    // video list (same as yours)
+    const videos = [
+      "friendvideo10.mp4",
+      "friendvideo9.mp4",
+      "friendvideo8.mp4",
+      "friendvideo7.mp4",
+      "friendvideo6.mp4",
+      "friendvideo5.mp4",
+      "friendvideo4.mp4",
+      "friendvideo3.mp4", // protected index 7
+      "friendvideo2.mp4"  // protected index 8
+    ];
+
+    const protectedIndices = new Set([7,8]); // last two protected
+    const CORRECT_PASSWORD = "I Love You Vivek"; // exact password (case-sensitive)
+
+    let index = 0;
+    const player = document.getElementById("videoPlayer");
+    const hintText = document.getElementById("hintText");
+    const overlay = document.getElementById("pwOverlay");
+    const pwField = document.getElementById("pwField");
+    const pwError = document.getElementById("pwError");
+
+    // keep unlocked state in sessionStorage so refreshing doesn't ask again in same tab
+    let unlocked = new Set(JSON.parse(sessionStorage.getItem("unlockedIndices") || "[]"));
+
+    function saveUnlocked(){
+      sessionStorage.setItem("unlockedIndices", JSON.stringify([...unlocked]));
+    }
+
+    // initialize
+    player.src = videos[index];
+    updateHint();
+
+    function updateHint(){
+      hintText.textContent = `Video ${index+1} of ${videos.length}` + (protectedIndices.has(index) ? " · Protected" : "");
+    }
+
+    function loadVideo(i){
+      const target = (i + videos.length) % videos.length;
+      // if protected and not unlocked, ask for password
+      if (protectedIndices.has(target) && !unlocked.has(target)){
+        // show password modal and remember which index requested
+        overlay.classList.add("show");
+        overlay.setAttribute("aria-hidden","false");
+        pwField.value = "";
+        pwField.focus();
+        pwError.textContent = "";
+        // store requested target in dataset so checkPassword knows
+        overlay.dataset.target = target;
+        return;
+      }
+      index = target;
+      player.src = videos[index];
+      player.play().catch(()=>{});
+      updateHint();
+    }
+    function nextVideo(){ loadVideo(index+1);}
+    function prevVideo(){ loadVideo(index-1);}
+
+    function closePw(){
+      overlay.classList.remove("show");
+      overlay.setAttribute("aria-hidden","true");
+      overlay.removeAttribute("data-target");
+      pwError.textContent = "";
+    }
+
+    function checkPassword(){
+      const entered = pwField.value;
+      const target = Number(overlay.dataset.target);
+      if (entered === CORRECT_PASSWORD){
+        // unlock this index
+        unlocked.add(target);
+        saveUnlocked();
+        closePw();
+        // load the protected video now
+        index = target;
+        player.src = videos[index];
+        player.play().catch(()=>{});
+        updateHint();
+      } else {
+        pwError.textContent = "Password galat hai — dobara koshish karein.";
+        pwField.focus();
+      }
+    }
+
+    // Allow pressing Enter to submit password
+    pwField.addEventListener("keydown", (e)=>{
+      if (e.key === "Enter") checkPassword();
+      if (e.key === "Escape") closePw();
+    });
+
+    // Optional: If you want to lock the video element's controls until unlocked, you can
+    // disable seeking/play for protected video by intercepting play events.
+    player.addEventListener("play", (e)=>{
+      if (protectedIndices.has(index) && !unlocked.has(index)){
+        // immediately pause and open password modal
+        player.pause();
+        loadVideo(index); // will trigger pw modal
+      }
+    });
+
+    // Prevent right-click download? Note: client-side measures are not bulletproof.
+    player.addEventListener("contextmenu", (e)=>{
+      // you can block context menu on player if you want (optional)
+      // e.preventDefault();
+    });
+  </script>
+</body>
+</html>
